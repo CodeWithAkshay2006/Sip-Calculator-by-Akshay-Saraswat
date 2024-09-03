@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIP & Lump Sum Calculator</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .calculator-container {
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            width: 100%;
+            color: #333;
+            position: relative;
+        }
+
+        .calculator-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #ffffff;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .tab {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+
+        .tab button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background-color: #ffffff;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+            font-weight: bold;
+            color: #007bff;
+            border-radius: 8px;
+        }
+
+        .tab button.active {
+            background-color: #007bff;
+            color: #ffffff;
+        }
+
+        .tab button:hover {
+            background-color: #007bff;
+            color: #ffffff;
+        }
+
+        .calculator {
+            display: none;
+        }
+
+        .calculator.active {
+            display: block;
+        }
+
+        .calculator label {
+            display: block;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+
+        .calculator input {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .calculator button {
+            width: 100%;
+            padding: 15px;
+            background-color: #ff6f61;
+            border: none;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .calculator button:hover {
+            background-color: #ff3b30;
+        }
+
+        .result {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 18px;
+            color: #ffffff;
+        }
+
+        .result .amount-words {
+            font-weight: bold;
+            font-size: 20px;
+            color: #ffffff;
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-size: 14px;
+            color: #ffffff;
+            text-align: right;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .calculator-container {
+                padding: 30px;
+            }
+
+            .calculator-container h2 {
+                font-size: 24px;
+            }
+
+            .calculator input {
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            .calculator button {
+                font-size: 16px;
+                padding: 12px;
+            }
+
+            .result {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .calculator-container {
+                padding: 20px;
+            }
+
+            .calculator-container h2 {
+                font-size: 20px;
+            }
+
+            .calculator input {
+                padding: 10px;
+                font-size: 12px;
+            }
+
+            .calculator button {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            .result {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <h2>SIP Calculator</h2>
+        <div class="tab">
+            <button class="tablinks active" onclick="openCalculator('sip')">Monthly SIP</button>
+            <button class="tablinks" onclick="openCalculator('lumpsum')">One-Time Investment</button>
+        </div>
+
+        <div id="sip" class="calculator active">
+            <label for="sipMonthlyInvestment">Monthly SIP Amount (Rs.):</label>
+            <input type="number" id="sipMonthlyInvestment" placeholder="Enter monthly SIP amount">
+
+            <label for="sipAnnualInterestRate">Annual Interest Rate (%):</label>
+            <input type="number" id="sipAnnualInterestRate" placeholder="Enter annual interest rate">
+
+            <label for="sipYears">Number of Years:</label>
+            <input type="number" id="sipYears" placeholder="Enter number of years">
+
+            <button onclick="calculateSIP()">Calculate</button>
+            <div class="result" id="sipResult"></div>
+        </div>
+
+        <div id="lumpsum" class="calculator">
+            <label for="lumpSumInvestment">One-Time Investment Amount (Rs.):</label>
+            <input type="number" id="lumpSumInvestment" placeholder="Enter one-time investment amount">
+
+            <label for="lumpSumAnnualInterestRate">Annual Interest Rate (%):</label>
+            <input type="number" id="lumpSumAnnualInterestRate" placeholder="Enter annual interest rate">
+
+            <label for="lumpSumYears">Number of Years:</label>
+            <input type="number" id="lumpSumYears" placeholder="Enter number of years">
+
+            <button onclick="calculateLumpSum()">Calculate</button>
+            <div class="result" id="lumpSumResult"></div>
+        </div>
+
+        <div class="footer">BY AKSHAY SARASWAT</div>
+    </div>
+
+    <script>
+        // Function to switch between SIP and Lump Sum calculators
+        function openCalculator(calculatorName) {
+            var i, calculators, tablinks;
+            calculators = document.getElementsByClassName("calculator");
+            for (i = 0; i < calculators.length; i++) {
+                calculators[i].classList.remove("active");
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+            document.getElementById(calculatorName).classList.add("active");
+            document.querySelector(`[onclick="openCalculator('${calculatorName}')"]`).classList.add("active");
+        }
+
+        // Function to convert a number to words (Indian Numbering System)
+        function numberToWords(number) {
+            const units = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+            const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+            const tens = ['Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+            const thousands = ['', 'Thousand', 'Lakh', 'Crore'];
+
+            function convertToWords(num) {
+                if (num === 0) return 'Zero';
+                let words = '';
+
+                if (num >= 10000000) {
+                    words += convertToWords(Math.floor(num / 10000000)) + ' Crore';
+                    num %= 10000000;
+                }
+                if (num >= 100000) {
+                    words += (words ? ' ' : '') + convertToWords(Math.floor(num / 100000)) + ' Lakh';
+                    num %= 100000;
+                }
+                if (num >= 1000) {
+                    words += (words ? ' ' : '') + convertToWords(Math.floor(num / 1000)) + ' Thousand';
+                    num %= 1000;
+                }
+                if (num >= 100) {
+                    words += (words ? ' ' : '') + convertToWords(Math.floor(num / 100)) + ' Hundred';
+                    num %= 100;
+                }
+                if (num >= 20) {
+                    words += (words ? ' ' : '') + tens[Math.floor(num / 10) - 2];
+                    num %= 10;
+                }
+                if (num >= 10) {
+                    words += (words ? ' ' : '') + teens[num - 10];
+                    num = 0;
+                }
+                if (num > 0) {
+                    words += (words ? ' ' : '') + units[num];
+                }
+
+                return words;
+            }
+
+            return convertToWords(number);
+        }
+
+        // Function to calculate the final amount for a monthly SIP
+        function calculateSIP() {
+            let monthlyInvestment = parseFloat(document.getElementById('sipMonthlyInvestment').value);
+            let annualInterestRate = parseFloat(document.getElementById('sipAnnualInterestRate').value);
+            let years = parseFloat(document.getElementById('sipYears').value);
+
+            let monthlyRate = (annualInterestRate / 100) / 12;
+            let months = years * 12;
+
+            let finalAmount = monthlyInvestment * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate) * (1 + monthlyRate);
+
+            let finalAmountInWords = numberToWords(finalAmount.toFixed(2));
+
+            document.getElementById('sipResult').innerHTML = `
+                <div>The final amount after ${years} years of SIP is: Rs. ${finalAmount.toFixed(2)}</div>
+                <div class="amount-words">(${finalAmountInWords} Rupees)</div>
+            `;
+        }
+
+        // Function to calculate the final amount for a one-time investment
+        function calculateLumpSum() {
+            let investment = parseFloat(document.getElementById('lumpSumInvestment').value);
+            let annualInterestRate = parseFloat(document.getElementById('lumpSumAnnualInterestRate').value);
+            let years = parseFloat(document.getElementById('lumpSumYears').value);
+
+            let rate = (annualInterestRate / 100);
+            let finalAmount = investment * Math.pow(1 + rate, years);
+
+            let finalAmountInWords = numberToWords(finalAmount.toFixed(2));
+
+            document.getElementById('lumpSumResult').innerHTML = `
+                <div>The final amount after ${years} years of one-time investment is: Rs. ${finalAmount.toFixed(2)}</div>
+                <div class="amount-words">(${finalAmountInWords} Rupees)</div>
+            `;
+        }
+    </script>
+</body>
+</html>
